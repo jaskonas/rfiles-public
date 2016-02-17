@@ -11,6 +11,7 @@ for(x in 1:101)
   for(y in 1:101)
     ##this is an algebraic reduction of the Republicans' relative payoff structure, where their payoff bonus is equal to the payoff for approving an Obama nominee (where their payoff is 100-Obama Nominee's Liberal Score, 100-y) minus the expected value of the election.
     ##100-y-((10*prob/100)+(1-prob/100)*100)=100-y-0.1prob-100+prob=0.9prob-y
+    ##I also need to use values 1-101 and subtract 1 in order to get the function to play nice with the matrix for later
     reps[x,y]= (0.9*(x-1)-(y-1))
 repframe=data.frame(reps)
 repframe$probability=c(0:100)
