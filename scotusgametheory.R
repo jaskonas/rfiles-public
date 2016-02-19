@@ -25,10 +25,8 @@ for(i in 1:n)
 repframe$obama=as.numeric(repframe$obama)-1
 summary(repframe) ##check- we should have obama and probability evenly distributed
 ##now we make our graph
-##probabilitydata
 probdata=ggplot(repframe, aes(probability, obama)) +
   geom_raster(data=repframe, aes(fill = payoffs), interpolate = F)+
-#   scale_fill_gradientn(colours=c("#452ADF","#FFFFFF","#CB152D"), +
   scale_fill_gradient2(low = "#452ADF", mid = "#FFFFFF", high = ("#CB152D"), midpoint = 0, name="Relative Payoff\nfor Republicans", guide = "colourbar",limits=c(-100,100))+
   theme(legend.text = element_text(size = 16),plot.title=element_text(size = 22),axis.title = element_text(size = 20))+
   xlab("Probability of a Democratic Victory in the Presidential Election") + ylab("Liberality of Obama's SCOTUS Nominee") + # Set axis labels
