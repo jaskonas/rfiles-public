@@ -75,3 +75,4 @@ library(quanteda)
 #ngrams- co-occuring words w/in a giving window. Typlical you move one word forward when comparing ngrams. (1 (one word),2,3,4 etc.). might need to do pre-processing to use right
 s="Felix struggles finishing this PhD. I am struggling finishing my PhD. I am Andy, struggling with this corpus."
 w=strsplit(s," ",fixed=TRUE)[[1L]]
+##change
