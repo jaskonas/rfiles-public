@@ -16,6 +16,8 @@ grepl("^apple", vec)
 grepl("^a",vec)
 # give us?  1 & 4
 
+
+
 # inside a regular expression, "$" means "the end of the string of characters"
 # so how do we identify the entries that end with e? 
 grepl("e$", vec)
@@ -75,4 +77,4 @@ library(quanteda)
 #ngrams- co-occuring words w/in a giving window. Typlical you move one word forward when comparing ngrams. (1 (one word),2,3,4 etc.). might need to do pre-processing to use right
 s="Felix struggles finishing this PhD. I am struggling finishing my PhD. I am Andy, struggling with this corpus."
 w=strsplit(s," ",fixed=TRUE)[[1L]]
-##change
+##change 2
