@@ -29,3 +29,8 @@ grepl("e$", vec)
 # * means zero or more 
 grepl("\\s", vec)
 grepl("\\d", vec)
+# [abc] match any one of a, b, or c
+grepl("b[ai]n", c("banana", "binary", "bones"))
+
+# another useful thing: "abc|def" means "match abc or def"
+grepl("app|ban", vec)
