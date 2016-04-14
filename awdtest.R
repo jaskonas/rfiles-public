@@ -1,1 +1,2 @@
-setwd("/Users/jonaskonas/Dropbox/Oxbridge info/Spring School/CompTextAnalysis/test")
+setwd("/Users/jda43/Dropbox/Oxbridge info/Spring School/CompTextAnalysis/test")
+awd=read.csv("afg.csv")
