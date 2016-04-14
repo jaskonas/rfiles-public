@@ -78,3 +78,75 @@ library(quanteda)
 s="Felix struggles finishing this PhD. I am struggling finishing my PhD. I am Andy, struggling with this corpus."
 w=strsplit(s," ",fixed=TRUE)[[1L]]
 ##change 2
+
+#### DAY TWO ###
+library(tm)
+library(textometry)
+library(FactoMineR)
+
+parli=read.csv("https://raw.githubusercontent.com/jaskonas/rfiles-public/master/THC_candidates.csv",stringsAsFactors=F)
+parli$oxmatch <- grepl("Oxford",parli$bio)
+summary(parli)
+
+r=data("robespierre")
+specificities(robespierre,types=NULL,parts=NULL)
+
+#text objects
+#create text object
+textpar=parli$bio
+CorpusTM=Corpus(VectorSource(textpar))
+CorpusTM=tm_map(CorpusTM,removePunctuation)
+CorpusTM=tm_map(CorpusTM,removeNumbers)
+CorpusTM=tm_map(CorpusTM,tolower)
+CorpusTM=tm_map(CorpusTM,removeWords,stopwords('english'))
+CorpusTM=tm_map(CorpusTM,stripWhitespace)
+CorpusTM=tm_map(CorpusTM,stemDocument)
+CorpusTM=tm_map(CorpusTM,PlainTextDocument)
+TDM=TermDocumentMatrix(CorpusTM)
+
+#playing around
+terms=c("Oxford","Cambridge")
+dim(TDM)
+inspect(TDM[15:50,1])
+TDMS =removeSparseTerms(TDM,0.99)
+inspect(TDMS[15:30,1])
+dim(TDMS)
+names=paste(parli$constituency.name,parli$sname)
+colnames(TDMS)=names
+TDMSMat=as.matrix(TDMS)
+spe=specificities(TDMSMat)
+plot(spe[7,]) #Africa
+
+subbio=which(spe[7,]>3) #get hgh up ones
+
+
+plot(spe[23,]) #artillery 
+
+plot(subbio[23,])
+##FIGURE OUT SUBBIO
+
+
+library(FactoMineR)
+TDMSMat[TDMSMat==0]=0.00000000001
+CA(TDMSMat)
+res.ca=CA(TDMSMat[,(grep("1950",parli$date))], ncp=2)
+res.ca=CA(TDMSMat[,(grep("[Bb]attle",parli$bio))], ncp=2)
+plot(res.ca, invisible = "col")
+
+#SCALING DATA
+parli=read.csv("https://raw.githubusercontent.com/jaskonas/rfiles-public/master/THC_candidates.csv",stringsAsFactors=F)
+parli$oxmatch <- grepl("Oxford",parli$bio)
+summary(parli)
+head(parli$bio[parli$oxmatch])
+parli$bio[grepl("Oxford",parli$bio)]
+parli$oxccmatch = grepl("[Oo]xford City",parli$bio)
+table(parli$party)
+sort(table(parli$party))
+parli$party[parli$party=="L."]="L"
+parli$party[parli$party=="lab"]="Lab"
+parli$party[parli$party=="lab."]="Lab"
+parli$party[parli$party=="Lab."]="Lab"
+sort(table(parli$party))
+##would need to do more sorting of party
+p2=parli[parli$party %in% c("L","C","Lab")]& parli$date == "1950-02-23",]
+
