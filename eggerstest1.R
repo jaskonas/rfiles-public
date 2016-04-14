@@ -150,3 +150,47 @@ sort(table(parli$party))
 ##would need to do more sorting of party
 p2=parli[parli$party %in% c("L","C","Lab")]& parli$date == "1950-02-23",]
 
+#day3
+require(tm)
+texts=c("This is a document","This is another document","When is lunch")
+vs = VectorSource(texts)
+vc=VCorpus(vs) #use PCorpus if huge texts
+vc=tm_map(vc, removePunctuation)
+dtm=DocumentTermMatrix(vc)
+inspect(dtm)
+
+dist(dtm)
+clust=hclust(dist(dtm))
+plot(clust)
+
+#playing with fed papers
+tdmf = read.csv("http://andy.egge.rs/data/fp_stop.csv", as.is = T, row.names = 1)
+# vsfed=VectorSource(tdm) #not necessary b/c already a dtm!
+# vcfed=VCorpus(vsfed)
+# vcfed=tm_map(vcfed,removePunctuation)
+# vcfed=tm_map(vcfed,removeNumbers)
+# vcfed=tm_map(vcfed,tolower)
+# vcfed=tm_map(vcfed,removeWords,stopwords('english'))
+# vcfed=tm_map(vcfed,stripWhitespace)
+# vcfed=tm_map(vcfed,PlainTextDocument)
+#transpose to take tdm to dtm
+dtmf=t(tdmf)
+clust1=hclust(dist(dtmf))
+plot(clust1)
+
+#naivebayes
+# require(quanteda)
+install_github("kbenoit/quanteda")
+dd=parli[parli$party %in% c("C","Lab"),]
+m=dfm(dd$bio, ignoredFeatures = stopwords('english'))
+tdfm=trim(m,minDoc=3)
+nb=textmodel(x=tdfm,y=dd$party, prior='docfreq',model="NB")
+predictions=predict(nb, newdata = tdfm)
+
+#felix's lecture
+parli=read.csv("https://raw.githubusercontent.com/jaskonas/rfiles-public/master/THC_candidates.csv",stringsAsFactors=F)
+library(stm)
+library(slam)
+library(servr)
+library(tm)
+library(LDAvis)
