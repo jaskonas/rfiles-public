@@ -26,6 +26,17 @@ png(filename="afg1.png", width=1000,height =1000,units="px",bg="white")
 map.afg2
 dev.off()
 
+#Afghanistan Deaths
+afgkia=awd[(awd$FriendlyKIA>=1)&!(is.na(awd$FriendlyKIA)),]
+
+map.afg3=map.afg1 +
+  stat_density2d(data=afgkia, aes(x=afgkia$Long, y=afgkia$Lat), na.rm=T)+
+  geom_point(data=afgkia, aes(x=afgkia$Long, y=afgkia$Lat), color="red",alpha=0.2, na.rm=T)
+map.afg3
+png(filename="afg2.png", width=1000,height =1000,units="px",bg="white")
+map.afg3
+dev.off()
+
 #testing text stuff
 textpar=awd$Summary
 library(stm)
