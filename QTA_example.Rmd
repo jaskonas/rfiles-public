@@ -1,0 +1,62 @@
+---
+title: "Quantitative Text Analysis Overview and Example"
+output: pdf_document
+geometry: margin=1in
+---
+
+This document is a brief introduction to Quantitative Text Analysis (QTA) methods in R. Doing QTA in R generally follows the steps below:
+
+1. Find or Generate Initial Dataset -- this often entails using web or document scraping techniques, including working with Optical Character Recognition technologies. In this example, I am using a dataset provided to me by Andy Eggers of obituaries of former Members of Parliament. Note in the example that you want to tell R not to read the text strings as factor variables:
+```{r tidy=TRUE, results='asis', out.width='0.8'}
+parli=read.csv("http://bit.ly/2Flquph",stringsAsFactors=F)
+str(parli)
+```
+
+2. Getting Your Dataset into Workable Condition -- this entails loading your dataset into R and then pre-processing it -- finding and removing artifacts or typos, and sometimes finding and rooming text that might distort your findings (most commonly, articles like 'the' and 'a' or other such language). For example, Snowball has a list of common english stopwords, which you could edit out of a dataset using a package like grepl:
+```{r warning=FALSE, message=FALSE}
+library(SnowballC)
+library(tm)
+sw=stopwords('english')
+sample(sw,10)
+```
+Some QTA packages will have you generate a corpora or another such specialized data object. Below we generate a Corpora and then pre-process it to remove everything except relevant text.
+
+```{r results='hide', error=TRUE, warning=FALSE, message=FALSE}
+library(stm)
+library(slam)
+library(servr)
+library(tm)
+textpar=parli$bio
+CorpusTM=Corpus(VectorSource(textpar))
+CorpusTM=tm_map(CorpusTM,removePunctuation)
+CorpusTM=tm_map(CorpusTM,removeNumbers)
+CorpusTM=tm_map(CorpusTM,tolower)
+CorpusTM=tm_map(CorpusTM,removeWords,stopwords('english'))
+CorpusTM=tm_map(CorpusTM,stripWhitespace)
+CorpusTM=tm_map(CorpusTM,stemDocument)
+TDM=TermDocumentMatrix(CorpusTM)
+```
+
+3. Analyzing Your Dataset -- Once you have loaded and processed your data, you can begin to analyze it. Your dataset will generally consists of columns of variables, some of which will be the text strings which interest you. Various packages can also manipulate corpora to create digital objects (like a matrix of terms appearing in the documents) that can themselves be analyzed. We can explore frequency of terms.
+```{r error=TRUE}
+sample(findFreqTerms(TDM,lowfreq=4,highfreq=10),20)
+```
+
+But more importantly, we can build topic models and other analytical tools that explore what words are co-located. You can use more sophisticated models that also incorporate variables. Below, we put our corpus into the slm format and then run a function that generates a Structural Topic Model. STMs will take a document-term matrix and an arbitrary number of topics (K below) and return K number of topics fitted to the parameters.
+```{r warning=FALSE, message=FALSE, fig.dim=c(5,5), fig.align='center'}
+TDMS=removeSparseTerms(TDM,0.99)
+out= readCorpus(TDMS, type="slam")
+names = paste(parli$constituency.name,parli$sname)
+out=prepDocuments(out$documents, out$vocab, names)
+summary(out)
+TMResult=stm(out$documents, out$vocab, K=8, max.em.its = 75, data = out$meta)
+plot.STM(TMResult, type="summary", xlim=c(0,2))
+```
+
+We can then do all kinds of interesting things, such as modeling these topics' relationships with each other. Below is a static graph depicting this, but R also supports software that does really beautiful interactive modelling (but that won't work in a pdf).
+```{r fig.align='center', message=FALSE, warning=FALSE}
+mod.out.corr=topicCorr(TMResult)
+library(igraph)
+plot.topicCorr(mod.out.corr)
+```
+
