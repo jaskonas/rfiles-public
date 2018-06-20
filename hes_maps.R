@@ -18,20 +18,27 @@ library(ggmap)
 
 svn= readOGR("/Users/jda43/Dropbox/Oxbridge info/DPhil/Data/Maps/SE_ASIA_PROVINCES_SV_NV_KH_LA", "SE_ASIA_PROVINCES_SV_NV_KH_LA")
 svo=subset(svn, COUNTRY=='SV')
+corps=read.csv("/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/corps.csv")
+combined <- sort(union(levels(corps$Province), levels(svo$Province)))
+
+svo@data = left_join(mutate(svo@data, Province = factor(Province, levels=combined)), unique(mutate(corps, Province = factor(Province, levels = combined))))
 ##do it in ggplot
 svo$id = rownames(as.data.frame(svo))
 svo.pts <- fortify(svo, region='id') #this only has the coordinates
 svo.df <- merge(svo.pts, svo, by="id", type='left')
-#map1
-map.viet1 <- ggplot(svo.df, aes(long,lat, group=group)) + # the data
+svo.df$Corps = as.factor(svo.df$Corps)
+svo.df$Coffelt.Code = as.factor(svo.df$Coffelt.Code)
+#base
+map.viet1= ggplot(svo.df, aes(long,lat, group=group)) + # the data
+  #brew
   # make polygons
-  geom_polygon(aes(x = long, y = lat, group = group), color = "black") +
+  geom_polygon(aes(x = long, y = lat, group = group), color = "black", fill='white') +
+  
   theme(line = element_blank(),  # remove the background, tickmarks, etc
         axis.text=element_blank(),
         axis.title=element_blank(),
         panel.background = element_blank()) +
-  coord_equal()+
-  guides(fill=FALSE)
+  coord_equal()
 
 #Heatmap
 map.viet2=map.viet1 +
@@ -51,4 +58,20 @@ map.viet3
 png(filename="/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/hes1.png", width=1200,height =1200,units="px",bg="white")
 map.viet3
 dev.off()
+
+#Province level #goingtohavetofigurethisoutlater
+by_VILID <- group_by(hes, HAMLETID)
+Vilad_count= summarize(by_VILID, VilMean=mean(TOTALPOP), prov=mean(PROVINCEID))
+
+provincecount$
+colnames(provincecount)[1]="Coffelt.Code"
+combined2 <- sort(union(levels(svo.df$Coffelt.Code), levels(provincecount$Coffelt.Code)))
+
+svo@data = left_join(mutate(svo@data, Coffelt.Code = factor(Coffelt.Code, levels=combined2)), unique(mutate(provincecount, Coffelt.Code = factor(Coffelt.Code, levels = combined2))))
+promap <- inner_join(svo.df, provincecount, by = "Coffelt.Code")
+promap$Coffelt.Code=as.factor(promap$Coffelt.Code)
+#mapcasualties
+casmap = svbase + geom_polygon(data = promap, aes(fill = count), color = "white")
+casmapcol = casmap + scale_fill_gradient(low="blue", high = "red",trans='log10')
+
 
