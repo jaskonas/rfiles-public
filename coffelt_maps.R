@@ -12,6 +12,7 @@ library(RColorBrewer)
 library(lattice)
 library(gridExtra)
 library(grid)
+library(plotly)
 
 setwd("~/Dropbox/Oxbridge info/DPhil/Data")
 coffelt=read.csv("coffelt4.csv")
@@ -71,9 +72,11 @@ casmapcol = casmap + scale_fill_gradientn(colours = rev(rainbow(9)),
                      breaks = c(10, 100, 250, 500, 1000, 2000, 4000, 8000),
                      trans = "log10") + theme(legend.position = c(0.15, 0.75)) + labs(fill='Number of\nUS Deaths')
 casmapcol
-png(filename="/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/casmapcol1.png", width=1200,height =1200,units="px",bg="white")
-casmapcol
-dev.off()
+ggsave("/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Latex/thesis_root/img/casmapprov.png", width = 3, height = 5, dpi = 300, units = "in", device='png')
+#plotly post
+c1 = ggplotly(casmapcol)
+# api_create(c1, filename = "VN US Casualty Map",sharing = "private") #Need to fix subscription
+
 
 #HES overlay
 hes=read.csv("hes/HES_gazateer_v1.csv")
@@ -103,7 +106,7 @@ dev.off()
 
 #putcasbarchart together with casmapcol
 
-#NEED TO REDO CASBARCHART WITH GEOGRAPHICAL DISPLAY PROVINCES ONLY
+#NEED TO REDO CASBARCHART WITH GEOGRAPHICAL DISPLAY PROVINCES ONLY Or do a version with legend a la stack overflow saved in Pocket
 casbarchartblank= casbarchartprov+theme_nothing() +  scale_fill_gradientn(colours = rev(rainbow(9)), breaks = c(10, 100, 250, 500, 1000, 2000, 4000, 8000))
 grid.arrange(casmapcol,casbarchartblank, ncol=2, top = textGrob("Title",gp=gpar(fontsize=20,font=3)))
 #Pull US Geo Data
