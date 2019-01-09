@@ -16,7 +16,7 @@ library(plotly)
 
 setwd("~/Dropbox/Oxbridge info/DPhil/Data")
 coffelt=read.csv("coffelt4.csv")
-coffelt2000=coffelt[sample(nrow(coffelt),2000),] #comment in for testing
+# coffelt2000=coffelt[sample(nrow(coffelt),2000),] #comment in for testing
 
 #convert factor to dates
 coffelt$DOB=as.Date(coffelt$DOB, "%m/%d/%Y")
@@ -88,9 +88,9 @@ casmapcol = casmap + scale_fill_gradientn(colours = rev(rainbow(9)),
                      trans = "log10") + theme(legend.position = c(0.15, 0.75)) + labs(fill='Number of\nUS Deaths')
 casmapcol
 ggsave("/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Latex/thesis_root/img/casmapprov.png", width = 3, height = 5, dpi = 300, units = "in", device='png')
-#plotly post
-c1 = ggplotly(casmapcol)
-# api_create(c1, filename = "VN US Casualty Map",sharing = "private") #Need to fix subscription
+#plotly post #Need to fix subscription
+# c1 = ggplotly(casmapcol)
+# api_create(c1, filename = "VN US Casualty Map",sharing = "private") 
 
 
 #HES overlay
