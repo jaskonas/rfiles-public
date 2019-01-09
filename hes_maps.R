@@ -1,6 +1,7 @@
+#Tell R where you want to work and get the data
 setwd("/Users/jda43/Dropbox/Oxbridge info/DPhil/Data")
 hes=read.csv("hes/HES_gazateer_v1.csv")
-
+#Preview the Data
 str(hes)
 #start with geocoding
 
@@ -15,10 +16,13 @@ library(RColorBrewer)
 library(ggplot2)
 library(ggmap)
 
-
+#Read the shape file (one way to do so)
 svn= readOGR("/Users/jda43/Dropbox/Oxbridge info/DPhil/Data/Maps/SE_ASIA_PROVINCES_SV_NV_KH_LA", "SE_ASIA_PROVINCES_SV_NV_KH_LA")
+#Limit it to South Vietnam
 svo=subset(svn, COUNTRY=='SV')
+#Pull my list of which provinces are in which Corps Tactical Zone and about casualties
 corps=read.csv("/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/corps.csv")
+#Add my data on corps and provinces to the shapefile
 combined <- sort(union(levels(corps$Province), levels(svo$Province)))
 
 svo@data = left_join(mutate(svo@data, Province = factor(Province, levels=combined)), unique(mutate(corps, Province = factor(Province, levels = combined))))
@@ -26,11 +30,11 @@ svo@data = left_join(mutate(svo@data, Province = factor(Province, levels=combine
 svo$id = rownames(as.data.frame(svo))
 svo.pts <- fortify(svo, region='id') #this only has the coordinates
 svo.df <- merge(svo.pts, svo, by="id", type='left')
+#Put my data into the right shape
 svo.df$Corps = as.factor(svo.df$Corps)
 svo.df$Coffelt.Code = as.factor(svo.df$Coffelt.Code)
 #base
-map.viet1= ggplot(svo.df, aes(long,lat, group=group)) + # the data
-  #brew
+map.viet1= ggplot(svo.df, aes(long,lat, group=group)) + 
   # make polygons
   geom_polygon(aes(x = long, y = lat, group = group), color = "black", fill='white') +
   
@@ -40,7 +44,7 @@ map.viet1= ggplot(svo.df, aes(long,lat, group=group)) + # the data
         panel.background = element_blank()) +
   coord_equal()
 
-#Heatmap
+#Heatmap - adding a heatmap precoded with Lat Long on top of my map
 map.viet2=map.viet1 +
   stat_density2d(data=hes, aes(x=hes$LONG, y=hes$LAT), na.rm=T)+
   geom_point(data=hes, aes(x=hes$LONG, y=hes$LAT, size=hes$TOTALPOP/2), color="red", alpha=0.01, show.legend = FALSE, na.rm=T)+ theme(legend.position="none")

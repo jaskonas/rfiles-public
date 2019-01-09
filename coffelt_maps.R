@@ -18,6 +18,14 @@ setwd("~/Dropbox/Oxbridge info/DPhil/Data")
 coffelt=read.csv("coffelt4.csv")
 coffelt2000=coffelt[sample(nrow(coffelt),2000),] #comment in for testing
 
+#convert factor to dates
+coffelt$DOB=as.Date(coffelt$DOB, "%m/%d/%Y")
+coffelt$CDATE=as.Date(coffelt$CDATE, "%m/%d/%Y") #need to add in code to pre-process this for people that don't have the exact dates.
+coffelt$DDATE=as.Date(coffelt$DDATE, "%m/%d/%Y")
+coffelt$TDATE=as.Date(coffelt$TDATE, "%m/%d/%Y")
+#IFF CDATE unknown, replace with DDATE
+coffelt[is.na(coffelt$CDATE),]$CDATE=coffelt[is.na(coffelt$CDATE),]$DDATE
+
 # Histogram of field grade officers (Army and Marines) and above
 coffeltfgo= subset(coffelt, (SV=='A' | SV=='M') & (RNK=='MAJ' | RNK=='LTC' | RNK=='COL' | RNK=='BGEN' | RNK=='MGEN'))
 coffeltfgo$DOB=as.Date(coffeltfgo$DOB, "%m/%d/%Y")
@@ -25,6 +33,13 @@ coffeltfgo$CDATE=as.Date(coffeltfgo$CDATE, "%m/%d/%Y") #need to add in code to p
 coffeltfgo$DDATE=as.Date(coffeltfgo$DDATE, "%m/%d/%Y")
 coffeltfgo$TDATE=as.Date(coffeltfgo$TDATE, "%m/%d/%Y")
 fgohist=ggplot(coffeltfgo, aes(CDATE)) + geom_histogram(aes(fill = RNK),binwidth = 60)
+
+#Whole War histogram
+
+wholehist=ggplot(coffelt, aes(CDATE)) + geom_histogram(binwidth = 60) + xlim(as.Date("0065-01-01"),as.Date("0074-01-01"))+theme_bw()
+wholehist
+ggsave("/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Latex/thesis_root/img/vietcashist.png", width = 5, height = 5, dpi = 300, units = "in", device='png')
+
 
 #map against totals.
 
@@ -82,12 +97,10 @@ c1 = ggplotly(casmapcol)
 hes=read.csv("hes/HES_gazateer_v1.csv")
 hesoverlay= casmapcol+
   stat_density2d(data=hes, inherit.aes = FALSE, aes(x=hes$LONG, y=hes$LAT), na.rm=T)+
-  geom_point(data=hes, inherit.aes = FALSE, aes(x=hes$LONG, y=hes$LAT), color="red",alpha=0.03, na.rm=T)
+  geom_point(data=hes, inherit.aes = FALSE, aes(x=hes$LONG, y=hes$LAT), color="red",alpha=0.01, na.rm=T)
 
 hesoverlay
-png(filename="/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/casmapcol_hesoverlay1.png", width=1200,height =1200,units="px",bg="white")
-hesoverlay
-dev.off()
+ggsave(filename="/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Latex/thesis_root/img/casmapcol_hesoverlay1.png", width = 4, height = 5, dpi = 400, units = "in", device='png')
 
 #Bar Chart by Province Coffelt
 combined3 <- sort(union(levels(corps$Coffelt.Code), levels(provincecount$Coffelt.Code)))

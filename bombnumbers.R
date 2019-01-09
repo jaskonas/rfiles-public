@@ -1,0 +1,23 @@
+library(ggplot2)
+library(ggthemes)
+# library(scales)
+# library(grid)
+# library(ggmap)
+# library(maps)
+# library(magick)
+# # library(rgeos)
+# library(rgdal)
+# library(dplyr)
+# library(RColorBrewer)
+# library(lattice)
+# library(gridExtra)
+# library(grid)
+# library(plotly)
+
+setwd("~/Dropbox/Oxbridge info/DPhil/Data")
+air=read.csv("oif_airpower.csv")
+air$Date = as.Date(paste(1, air$Month, air$Year), format='%d %B %Y')
+airp=ggplot(data=air) + geom_line(aes(x=air$Date, y=Bombs))+ ylab("Munitions Dropped") + xlab("Month") +# Set axis labels
+  geom_vline(xintercept = as.Date('2/10/2007',format='%m/%d/%Y'), linetype = 2) + annotate("text", x= as.Date('12/1/2006',format='%m/%d/%Y'), y=270,label = 'Petraeus Takes Command',angle=90, size=5) + theme_bw() + xlim(as.Date(c('1/1/2004','1/1/2012'),format='%m/%d/%Y'))
+airp
+ggsave("/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Latex/thesis_root/img/bombnumbers.png", width = 7, height = 4.5, dpi = 300, units = "in", device='png')
