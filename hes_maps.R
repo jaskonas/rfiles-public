@@ -45,14 +45,51 @@ map.viet1= ggplot(svo.df, aes(long,lat, group=group)) +
   coord_equal()
 
 #Heatmap - adding a heatmap precoded with Lat Long on top of my map
-map.viet2=map.viet1 +
-  stat_density2d(data=hes, aes(x=hes$LONG, y=hes$LAT), na.rm=T)+
-  geom_point(data=hes, aes(x=hes$LONG, y=hes$LAT, size=hes$TOTALPOP/2), color="red", alpha=0.01, show.legend = FALSE, na.rm=T)+ theme(legend.position="none")
+map.viet2=map.viet1 + 
+  stat_density2d(data=hes, aes(x=hes$LONG, y=hes$LAT), na.rm=T, inherit.aes = FALSE)+
+  geom_point(data=hes, aes(x=hes$LONG, y=hes$LAT, size=hes$TOTALPOP/2), color="red", alpha=0.01, show.legend = FALSE, na.rm=T,inherit.aes = FALSE)+ theme(legend.position="none")
 
 map.viet2
 png(filename="/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/hes1.png", width=1200,height =1200,units="px",bg="white")
 map.viet2
 dev.off()
+#Phu Yen Only
+py=subset(svo, Province %in% "Phu Yen" )
+py.df=subset(svo.df, Province %in% "Phu Yen")
+map.py1= ggplot(py.df, aes(long,lat, group=group)) + 
+  # make polygons
+  geom_polygon(aes(x = long, y = lat, group = group), color = "black", fill='white') +
+  
+  theme(line = element_blank(),  # remove the background, tickmarks, etc
+        axis.text=element_blank(),
+        axis.title=element_blank(),
+        panel.background = element_blank()) +
+  coord_equal()
+#convert hes
+hescoord <- na.omit(hes[,c("LONG","LAT")])
+hes2 = hes[complete.cases(hes[ , c("LAT","LONG")]),]
+hesdf <- SpatialPointsDataFrame(coords = hescoord, data = hes2,
+                               proj4string = CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+
+#add hes
+py_hes=hesdf[py,]
+py_hesdf=data.frame(coordinates(py_hes))
+map.py2=map.py1 + 
+  stat_density2d(data=py_hesdf, aes(x=py_hesdf$LONG, y=py_hesdf$LAT), na.rm=T, inherit.aes = FALSE)+
+ geom_point(data=py_hesdf, aes(x=py_hesdf$LONG, y=py_hesdf$LAT), color="red", alpha=0.3, show.legend = FALSE, na.rm=T,inherit.aes = FALSE)+
+theme(legend.position="none")
+map.py2
+
+map.py2
+png(filename="/Users/jda43/Dropbox/Oxbridge info/DPhil/Writing/Images/phuyen_hes1.png", width=600,height =600,units="px",bg="white")
+map.py2
+dev.off()
+
+#isolate village for Rob
+library(stringr)
+hes3=hes
+hes3 = hes3 %>% filter(str_detect(hes3$HAMLETNAME, "^MINH DUC"))
+hes3[1,]
 #compare
 map.viet3=map.viet1 +
   stat_density2d(data=hes, aes(x=hes$LONG, y=hes$LAT), na.rm=T)+
